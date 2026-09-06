@@ -48,12 +48,12 @@ Core entities every feature builds on: users, movies, ratings, swipe reactions, 
 **Done when:** entities and relationships support onboarding, feed generation, CSV import, feedback, and watchlist without a breaking migration.
 spec [0002](../specs/0002-data-model/index.md)
 - [x] Design it (spec): `/architect data model`
-- [ ] Build it: `/develop data model`
-  - [ ] Application role & RLS foundation: `app_user` role, Inngest bypass role, `drizzle.config.ts` roles, satisfies AC-6
-  - [ ] Schema & constraints: `schema.ts` for all seven entities, cascades, check constraints, satisfies AC-1 to AC-5, AC-7, AC-9, AC-10
-  - [ ] RLS policies & indexes: enable + force RLS per table, HNSW/GIN/partial indexes, satisfies AC-2, AC-5, AC-6
-  - [ ] Migration & upsert helper: generate the migration (extension, trigger, atomic counter upsert), write the application upsert helper, satisfies AC-1, AC-2, AC-8, AC-10
-  - [ ] Apply & verify locally: `pnpm db:migrate`, smoke test RLS as `app_user`, satisfies AC-6, AC-8
+- [x] Build it: `/develop data model` · code in `src/db/`
+  - [x] Application role & RLS foundation: `app_user` role, Inngest bypass role, `drizzle.config.ts` roles, satisfies AC-6
+  - [x] Schema & constraints: `schema.ts` for all seven entities, cascades, check constraints, satisfies AC-1 to AC-5, AC-7, AC-9, AC-10
+  - [x] RLS policies & indexes: enable + force RLS per table, GIN/partial indexes, satisfies AC-2, AC-5, AC-6 (HNSW on `movies.embedding` deferred to feature 4's bulk load, per spec 0002's own indexing note)
+  - [x] Migration & upsert helper: generate the migration (extension, trigger, atomic counter upsert), write the application upsert helper, satisfies AC-1, AC-2, AC-8, AC-10
+  - [x] Apply & verify locally: `pnpm db:migrate`, smoke test RLS as `app_user`, satisfies AC-6, AC-8
 - [ ] Verify it: `/check verify`
 
 ### 4. Movie catalog & ingestion · needs a decision
