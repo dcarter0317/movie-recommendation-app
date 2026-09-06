@@ -1,0 +1,17 @@
+# build output
+.next/
+out/
+build/
+coverage/
+
+# dependencies
+node_modules/
+
+# generated / vendored (not ours to format)
+next-env.d.ts
+*.tsbuildinfo
+pnpm-lock.yaml
+.agents/
+docs/
+public/
+src/db/migrations/
