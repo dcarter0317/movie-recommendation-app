@@ -17,4 +17,12 @@ export default defineConfig({
   },
   strict: true,
   verbose: true,
+  // Track only our own custom roles (`app_user`); Supabase's built-in roles
+  // (anon, authenticated, service_role, ...) already exist in every Supabase
+  // project and must not be introspected/managed by drizzle-kit.
+  entities: {
+    roles: {
+      provider: "supabase",
+    },
+  },
 });
