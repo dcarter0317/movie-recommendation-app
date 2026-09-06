@@ -3,7 +3,7 @@
 A web app where film fans sign in, teach it their taste by importing their Letterboxd ratings or swiping through movies, and then get a personalized feed that explains every pick, plus a natural language "vibe" search. Ships alongside a public marketing site.
 
 **Build approach:** Tracer Bullet (prove one thin real thread through every layer first, then thicken one segment at a time).
-**Workflow:** GA (after `/develop`: `/check verify`, then `/test`, then a fresh model `/check review`, then `/document`; most features are treated as needing a spec). The project default level of rigor. `/architect` is the recommended first stop for a feature with a real decision, but skippable when you already know the build. Any feature can carry its own tag (e.g. `· Beta`) to do more or less.
+**Workflow:** Alpha (after `/develop`, run `/check verify` to confirm the feature works on the real app). The project default level of rigor. `/architect` is the recommended first stop for a feature with a real decision, but skippable when you already know the build. Any feature can carry its own tag (e.g. `· Beta`) to do more or less.
 
 _These are recommendations to keep your build orderly, not requirements. Skip anything that does not fit: if you already know how to build a feature, use `/develop` and skip `/architect`. You decide when a feature is `done`._
 
@@ -11,9 +11,9 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 
 | # | Feature | Phase | Status |
 |---|---------|-------|--------|
-| 1 | Stack & architecture | Foundation | in-progress |
+| 1 | Stack & architecture | Foundation | done |
 | 2 | Coding standards & tooling | Foundation | done |
-| 3 | Data model | Foundation | planned |
+| 3 | Data model | Foundation | in-progress |
 | 4 | Movie catalog & ingestion | Foundation | planned |
 | 5 | Design system & UI foundation | Foundation | planned |
 | 6 | Accounts & sign in | Slice 1 | planned |
@@ -27,12 +27,13 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 
 ## Foundations
 
-### 1. Stack & architecture
+### 1. Stack & architecture · done
 Decide the stack (framework, language, persistence, hosting shape) and scaffold a runnable project so every later slice builds on real structure.
 **Done when:** the stack is recorded in a spec and the empty scaffold boots locally and passes build.
 spec [0001](../specs/0001-stack-and-architecture/index.md) · code in `src/`
 - [x] Decide the stack (spec): `/architect stack & architecture`
 - [x] Scaffold from the decision: `/develop stack & architecture`
+- [x] Verify it: `/check verify`
 
 ### 2. Coding standards & tooling · done
 Capture conventions, then install lint, format, type strictness, and pre-commit enforcement from the real scaffolded project.
@@ -42,10 +43,18 @@ code in `.prettierrc.json`, `.prettierignore`, `eslint.config.mjs`, `.husky/`, `
 - [x] Install the tooling: `/develop tooling`
 - [x] Check it runs clean: `/test`
 
-### 3. Data model · needs a decision
+### 3. Data model
 Core entities every feature builds on: users, movies, ratings, swipe reactions, taste profile, feed feedback, watchlist entries.
 **Done when:** entities and relationships support onboarding, feed generation, CSV import, feedback, and watchlist without a breaking migration.
-- [ ] Design it (spec): `/architect data model`
+spec [0002](../specs/0002-data-model/index.md)
+- [x] Design it (spec): `/architect data model`
+- [ ] Build it: `/develop data model`
+  - [ ] Application role & RLS foundation: `app_user` role, Inngest bypass role, `drizzle.config.ts` roles, satisfies AC-6
+  - [ ] Schema & constraints: `schema.ts` for all seven entities, cascades, check constraints, satisfies AC-1 to AC-5, AC-7, AC-9, AC-10
+  - [ ] RLS policies & indexes: enable + force RLS per table, HNSW/GIN/partial indexes, satisfies AC-2, AC-5, AC-6
+  - [ ] Migration & upsert helper: generate the migration (extension, trigger, atomic counter upsert), write the application upsert helper, satisfies AC-1, AC-2, AC-8, AC-10
+  - [ ] Apply & verify locally: `pnpm db:migrate`, smoke test RLS as `app_user`, satisfies AC-6, AC-8
+- [ ] Verify it: `/check verify`
 
 ### 4. Movie catalog & ingestion · needs a decision
 Where movie data comes from and how it gets into the app: source, import pipeline, posters and metadata, refresh, and the fields the recommender and search need.

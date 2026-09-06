@@ -1,7 +1,7 @@
 # 0001. Stack and architecture for the movie recommendation app
 
 **Date**: 2026-09-05
-**Status**: In Progress
+**Status**: Accepted
 
 ## Summary
 
