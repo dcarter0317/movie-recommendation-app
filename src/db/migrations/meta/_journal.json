@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1788716203525,
+      "tag": "0000_third_living_tribunal",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788716220663,
+      "tag": "0001_rls_force_trigger_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788716734571,
+      "tag": "0002_grant_migrator_app_user_membership",
+      "breakpoints": true
+    }
+  ]
+}
