@@ -12,7 +12,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | # | Feature | Phase | Status |
 |---|---------|-------|--------|
 | 1 | Stack & architecture | Foundation | in-progress |
-| 2 | Coding standards & tooling | Foundation | in-progress |
+| 2 | Coding standards & tooling | Foundation | done |
 | 3 | Data model | Foundation | planned |
 | 4 | Movie catalog & ingestion | Foundation | planned |
 | 5 | Design system & UI foundation | Foundation | planned |
@@ -34,13 +34,13 @@ spec [0001](../specs/0001-stack-and-architecture/index.md) · code in `src/`
 - [x] Decide the stack (spec): `/architect stack & architecture`
 - [x] Scaffold from the decision: `/develop stack & architecture`
 
-### 2. Coding standards & tooling
+### 2. Coding standards & tooling · done
 Capture conventions, then install lint, format, type strictness, and pre-commit enforcement from the real scaffolded project.
 **Done when:** root `AGENTS.md` reflects the real stack, and lint/format/pre-commit run clean.
-code in `.prettierrc.json`, `.prettierignore`, `eslint.config.mjs`, `.husky/`, `package.json`
-- [ ] Capture conventions + tooling choices: `/audit`
+code in `.prettierrc.json`, `.prettierignore`, `eslint.config.mjs`, `.husky/`, `package.json`, `vitest.config.mts`
+- [x] Capture conventions + tooling choices: `/audit`
 - [x] Install the tooling: `/develop tooling`
-- [ ] Check it runs clean: `/test`
+- [x] Check it runs clean: `/test`
 
 ### 3. Data model · needs a decision
 Core entities every feature builds on: users, movies, ratings, swipe reactions, taste profile, feed feedback, watchlist entries.
