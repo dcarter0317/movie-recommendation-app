@@ -1,6 +1,27 @@
-# Verify: design system and UI foundation · spec 0005 · created 2026-09-07
+# Verify: design system and UI foundation · spec 0005 · created 2026-09-07 · updated 2026-09-07 (build landed)
 
 _Steps derived from spec 0005 acceptance criteria. `/check verify` runs these; `/test` locks the durable ones._
+
+## Build notes for the verifier
+
+- All six primitives plus `MovieCard`, `SwipeCard`, and `Input` had their
+  `:focus-visible` ring normalised to the spec 0005 pattern
+  (`ring-2 ring-ring ring-offset-2 ring-offset-background`), overriding shadcn
+  `radix-nova`'s default `ring-3 ring-ring/50`. `src/components/focus-ring.test.ts`
+  guards this.
+- `Poster` is a server component that renders the "no path" fallback; it
+  delegates the load skeleton and the runtime `onError` fallback to a small
+  client child, `PosterImage` (`src/components/movie/poster-image.tsx`). The
+  shared fallback tile is `poster-fallback.tsx`.
+- `ThemeToggle` has no permanent home yet (features 6 and 7 build the app
+  shell). It is mounted on the `/feed` placeholder page, top right, so theme
+  switching is reachable to verify.
+- `ThemeToggle` uses `useSyncExternalStore` (not `useState` + effect) for the
+  mount gate, to satisfy the `react-hooks/set-state-in-effect` lint rule.
+- The Vitest reduced-motion stub lives in `src/test/reduced-motion.ts`
+  (installed from `vitest.setup.ts`); the `SwipeCard` reduced-motion assertions
+  are in their own file (`swipe-card.reduced-motion.test.tsx`) so `motion`'s
+  module-level reduced-motion global starts fresh.
 
 ## Commands
 
@@ -20,7 +41,7 @@ _Steps derived from spec 0005 acceptance criteria. `/check verify` runs these; `
 - [ ] **AC-7** — `MovieCard` shows poster + title + year. Tab to it → one visible `:focus-visible` ring on one element (not nested tab stops). Enter and Space both activate it (navigate when `href`, call `onSelect` when provided).
 - [ ] **AC-8** — `SwipeCard`: pointer drag right past the threshold flings and calls `onReact("like")`; left → `dislike`; up → `seen`; down → `skip`. Each of the four on screen buttons calls the matching reaction. ArrowRight / ArrowLeft / ArrowUp / ArrowDown, handled on the card root and `preventDefault`ed, call the matching reaction; there is no window listener. Tab reaches every button with a visible ring. Each reaction calls `onReact` exactly once; a second input on the same card is ignored. After a reaction, focus is on the card root (`role="group"`, `aria-label`) and an `aria-live="polite"` region names the reaction.
 - [ ] **AC-9** — With OS "reduce motion" on (or `prefers-reduced-motion: reduce` emulated): `SwipeCard` renders with no drag transform / no fling animation (`useReducedMotion()` path), the card changes instantly, and buttons + arrow keys still call `onReact`.
-- [ ] **AC-10** — Tab through `Button`, `Input`, `MovieCard`, and each `SwipeCard` control → each shows a `:focus-visible` ring built from `--ring` with `ring-2 ring-offset-2 ring-offset-background`. The `contrastRatio()` unit test passes for every documented pair (`--foreground`/`--background`, `--primary-foreground`/`--primary`, `--muted-foreground`/`--background`, `--ring`/both backgrounds) at its target (4.5:1 body, 3:1 large / UI / ring) in both themes.
+- [ ] **AC-10** — Tab through `Button`, `Input`, `MovieCard`, and each `SwipeCard` control → each shows a `:focus-visible` ring built from `--ring` with `ring-2 ring-offset-2 ring-offset-background`. `src/lib/contrast.test.ts` parses the token hex from `globals.css` and asserts every pair in `docs/design.md`'s contrast table meets its target in both themes: body pairs (`--foreground`/`--background`, `--card-foreground`/`--card`, `--primary-foreground`/`--primary`, `--secondary-foreground`/`--secondary`, `--accent-foreground`/`--accent`, `--muted-foreground`/`--background` and `/--card`, `--destructive`/`--background` and `/--card`) at 4.5:1; UI / large-text pairs (`--ring`/`--background` and `/--card`, `--primary`/`--background`, and each swipe hint `--like` / `--dislike` / `--seen` / `--skip` on `--background`) at 3:1. Known limit documented in `design.md`: `--primary` as body-size link text on `--background` in light mode is 3.19:1 (passes 3:1, not 4.5:1) — a `--link` token is deferred (spec Follow-up).
 - [ ] **AC-11** — `pnpm test` runs: `reactionForDrag` (each direction, distance threshold `120`, velocity threshold `500`, diagonal resolution, sub threshold returns nothing); `SwipeCard` button and key paths (one `onReact` per reaction, second input ignored, focus moved to root, reduce motion branch renders with no drag transform); render / smoke tests for `Poster`, `MovieCard`, `SwipeCard`, `EmptyState`, `Spinner`, `ThemeToggle`, `PageContainer`, `Stack`, `Cluster`. The `matchMedia` stub is in the Vitest setup file. The pointer drag fling is a Playwright check here, not a unit test.
 
 ## Value sourcing coverage
