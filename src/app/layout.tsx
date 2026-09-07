@@ -1,16 +1,26 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
+// Geist Sans is the interface and body family, exposed as `--font-sans`
+// (the `font-sans` utility and shadcn's `@theme` mapping both read it).
 const geistSans = Geist({
-  variable: "--font-geist-sans",
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Fraunces is the display serif, exposed as `--font-display` (the
+// `font-display` utility). Used only at `text-3xl` and larger. Variable
+// weight, no extra axes.
+const fraunces = Fraunces({
+  variable: "--font-display",
   subsets: ["latin"],
+  display: "swap",
+  axes: [],
 });
 
 export const metadata: Metadata = {
@@ -24,8 +34,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${fraunces.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <body className="flex min-h-full flex-col">
+        <ThemeProvider>
+          {children}
+          <Toaster position="top-center" richColors={false} />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

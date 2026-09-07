@@ -43,3 +43,7 @@ next-env.d.ts
 # agent skills (vendored; restore with `npx skills experimental_install` from skills-lock.json)
 /.agents/
 /.claude/
+
+# Playwright MCP artifacts and stray root-level screenshots
+.playwright-mcp/
+/*.png

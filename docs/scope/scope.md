@@ -74,12 +74,12 @@ Visual language, layout primitives, and base components (including the swipe car
 **Done when:** `design.md` covers type/color/spacing/components, and base components handle focus and keyboard.
 spec [0005](../specs/0005-design-system-ui-foundation/index.md)
 - [x] Design it (spec): `/architect design system & UI foundation`
-- [ ] Build it: `/develop design system & UI foundation` · code in `src/components/`, `src/components/ui/`, `src/components/movie/`, `src/lib/tmdb/`, `src/app/globals.css`, `docs/design.md`
-  - [ ] shadcn init + token layer + fonts + `design.md`: `npx shadcn init` (new-york, rsc, lucide, zinc), rewrite `globals.css` (`:root`/`.dark` values, `@theme inline`, `@custom-variant dark`, motion tokens), wire Fraunces / drop Geist Mono, write `docs/design.md`, add the token parity test · AC-1, AC-2, AC-4
-  - [ ] Theme switching: `ThemeProvider` (next-themes, default dark) + `ThemeToggle` with a pre-mount placeholder, no theme flash, `(marketing)` stays static · AC-3
-  - [ ] Primitives + feedback + layout: `Card`/`Input`/`Label`/`Badge`/`Skeleton`, `Toast` (sonner), `EmptyState`, `Spinner`, `PageContainer`, `Stack`, `Cluster`, with usage notes · AC-1, AC-4, AC-5
-  - [ ] Movie components: `posterUrl` helper + `image.tmdb.org` config, `Poster` (2:3, skeleton, fallback on undefined and `onError`), `MovieCard`, `SwipeCard` (one `reactionForDrag` resolver for drag + buttons + arrow keys, single fire, focus + announce, `LazyMotion` drag, reduce-motion branch) · AC-6, AC-7, AC-8, AC-9
-  - [ ] Contrast + focus audit, then component tests: `contrastRatio()` gate on every documented pair, `--ring` everywhere, then Vitest for `reactionForDrag`, the `SwipeCard` button/key paths, and smoke tests for the bespoke and composed components · AC-10, AC-11
+- [x] Build it: `/develop design system & UI foundation` · code in `src/components/`, `src/components/ui/`, `src/components/movie/`, `src/lib/tmdb/images.ts`, `src/lib/contrast.ts`, `src/app/globals.css`, `src/app/layout.tsx`, `next.config.ts`, `docs/design.md`
+  - [x] shadcn init + token layer + fonts + `design.md`: `shadcn@4 init` (radix base, zinc, lucide) then `migrate base-color` to zinc, rewrite `globals.css` (`:root`/`.dark` hex values, `@theme inline`, `@theme` motion tokens, `@custom-variant dark`, reduce-motion backstop), wire Fraunces as `--font-display` / drop Geist Mono, write `docs/design.md`, add the token parity test · AC-1, AC-2, AC-4
+  - [x] Theme switching: `ThemeProvider` (next-themes, default dark) + `ThemeToggle` with a pre-mount placeholder, no theme flash, `(marketing)` stays static · AC-3
+  - [x] Primitives + feedback + layout: `Card`/`Input`/`Label`/`Badge`/`Skeleton`, `Toast` (sonner), `EmptyState`, `Spinner`, `PageContainer`, `Stack`, `Cluster`, with usage notes · AC-1, AC-4, AC-5
+  - [x] Movie components: `posterUrl` helper + `image.tmdb.org` config, `Poster` (2:3, skeleton, fallback on undefined and `onError`), `MovieCard`, `SwipeCard` (one `reactionForDrag` resolver for drag + buttons + arrow keys, single fire, focus + announce, `LazyMotion` drag, reduce-motion branch) · AC-6, AC-7, AC-8, AC-9
+  - [x] Contrast + focus audit, then component tests: `contrastRatio()` gate on every documented pair, `--ring` everywhere, then Vitest for `reactionForDrag`, the `SwipeCard` button/key paths, and smoke tests for the bespoke and composed components · AC-10, AC-11
 - [ ] Verify it: `/check verify design system & UI foundation`
 
 ## Slice 1: Core recommendation loop
