@@ -13,8 +13,8 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 |---|---------|-------|--------|
 | 1 | Stack & architecture | Foundation | done |
 | 2 | Coding standards & tooling | Foundation | done |
-| 3 | Data model | Foundation | in-progress |
-| 4 | Movie catalog & ingestion | Foundation | planned |
+| 3 | Data model | Foundation | done |
+| 4 | Movie catalog & ingestion | Foundation | in-progress |
 | 5 | Design system & UI foundation | Foundation | planned |
 | 6 | Accounts & sign in | Slice 1 | planned |
 | 7 | Swipe onboarding & personalized feed | Slice 1 | planned |
@@ -43,7 +43,7 @@ code in `.prettierrc.json`, `.prettierignore`, `eslint.config.mjs`, `.husky/`, `
 - [x] Install the tooling: `/develop tooling`
 - [x] Check it runs clean: `/test`
 
-### 3. Data model
+### 3. Data model · done
 Core entities every feature builds on: users, movies, ratings, swipe reactions, taste profile, feed feedback, watchlist entries.
 **Done when:** entities and relationships support onboarding, feed generation, CSV import, feedback, and watchlist without a breaking migration.
 spec [0002](../specs/0002-data-model/index.md)
@@ -54,12 +54,20 @@ spec [0002](../specs/0002-data-model/index.md)
   - [x] RLS policies & indexes: enable + force RLS per table, GIN/partial indexes, satisfies AC-2, AC-5, AC-6 (HNSW on `movies.embedding` deferred to feature 4's bulk load, per spec 0002's own indexing note)
   - [x] Migration & upsert helper: generate the migration (extension, trigger, atomic counter upsert), write the application upsert helper, satisfies AC-1, AC-2, AC-8, AC-10
   - [x] Apply & verify locally: `pnpm db:migrate`, smoke test RLS as `app_user`, satisfies AC-6, AC-8
-- [ ] Verify it: `/check verify`
+- [x] Verify it: `/check verify`
 
-### 4. Movie catalog & ingestion · needs a decision
+### 4. Movie catalog & ingestion · in-progress
 Where movie data comes from and how it gets into the app: source, import pipeline, posters and metadata, refresh, and the fields the recommender and search need.
 **Done when:** a real catalog of movies is queryable locally with posters and metadata, and there is a repeatable way to refresh it.
-- [ ] Design it (spec): `/architect movie catalog & ingestion`
+spec [0003](../specs/0003-movie-catalog-ingestion/index.md)
+- [x] Design it (spec): `/architect movie catalog & ingestion`
+- [ ] Build it: `/develop movie catalog & ingestion` · code in `src/features/catalog/`, `src/lib/tmdb/`, `src/lib/inngest/`, `src/lib/ai/`, `src/db/`
+  - [ ] Platform wiring & schema: install `inngest`/`ai`/`@ai-sdk/openai`, typed Inngest client + `serve()`, AI registry, Migration A (new `movies` columns, `app_inngest` grant), `asInngest()` DB client · AC-3, AC-7, AC-8, AC-9
+  - [ ] TMDB client & pure catalog module: `tmdbFetch` + `discoverMovies` + `getMovieDetail` (Zod, retry, `NonRetriableError` on 404), `catalog.config.ts`, `qualifies`/`toMovieRow`/`buildEmbeddingText`/`embeddingInputHash` · AC-1, AC-3, AC-9, AC-10
+  - [ ] Ingest + embed thin thread: `catalog-ingest-movie` (fixed upsert set-list, no embedding columns) and `catalog-embed-movies` (batched `embedMany`, single writer of the embedding columns), one movie end to end · AC-2, AC-3, AC-4, AC-8, AC-10
+  - [ ] Seed backfill & HNSW index: `catalog-seed` (per-sort budgets, in-memory dedupe, throttle) + `pnpm catalog:seed` script, run ~10k backfill, then Migration B (HNSW in `schema.ts`) · AC-1, AC-2, AC-5, AC-9
+  - [ ] Weekly refresh: `catalog-refresh` cron (new releases, stalest slice, bounded null sweep) + `tmdb_status` transitions · AC-6, AC-7
+- [ ] Verify it: `/check verify movie catalog & ingestion`
 
 ### 5. Design system & UI foundation · needs a decision
 Visual language, layout primitives, and base components (including the swipe card) so onboarding, feed, and search feel like one product and stay keyboard accessible.
@@ -129,6 +137,7 @@ Out of scope for the current build pass, kept so the plan stays honest.
 - **Cookie consent, privacy policy & terms**: consent banner and legal pages, expected once analytics and real accounts are live · needs a decision
 - **Accessibility AA program**: a committed WCAG AA baseline and audit across the whole app, beyond the keyboard support already seeded into onboarding · needs a decision
 - **Streaming availability**: show where each movie can be watched · needs a decision
+- **Catalog compaction**: a job to prune `tmdb_status in ('disqualified','removed')` movie rows once dead rows become material · from spec 0003 · needs a decision
 - **Native mobile app**: a real iOS/Android client · needs a decision
 - **Billing & paid tier**: a freemium subscription if the product needs revenue later · needs a decision · GA
 
