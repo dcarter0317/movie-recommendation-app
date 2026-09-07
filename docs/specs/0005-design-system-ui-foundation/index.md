@@ -1,7 +1,7 @@
 # 0005. Design system and UI foundation
 
 **Date**: 2026-09-07
-**Status**: Proposed
+**Status**: In Progress
 **Updated**: 2026-09-07 — reconciled AC-4, build plan steps 1 and 2, and the dependency list with the current shadcn CLI (`shadcn@4`: preset plus `--base` model, no `--style` / `--base-color` init flags). The pinned token table is unchanged and stays canonical for values.
 
 ## Summary
