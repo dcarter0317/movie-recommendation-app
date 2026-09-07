@@ -35,3 +35,22 @@ _Steps derived from spec 0003 acceptance criteria. `/check verify` runs these; `
 ## Acceptance-criteria coverage
 
 - AC-1 … seed backfill count and active row filter checks · AC-2 … double seed idempotency plus embedding preserved · AC-3 … field population, Zod boundary, type modes · AC-4 … embedding fill after sweep plus provider failure plus single writer · AC-5 … HNSW via schema.ts, index scan · AC-6 … refresh three passes, bounded sweep, model change re embed · AC-7 … disqualified / removed / recover transitions · AC-8 … `set local role` write path isolation · AC-9 … config file, no new env var, documented process.env exemption · AC-10 … poster URL construction
+
+## Verified during /develop · 2026-09-07
+
+Already proven while building; `/check verify` can treat these as done and focus on the seed backfill and Migration B.
+
+- [x] `pnpm typecheck`, `pnpm lint`, `pnpm build` all green with the new code.
+- [x] `pnpm db:migrate` applied Migration A to the local Supabase stack; confirmed live via `information_schema`: all nine new `movies` columns, `movies_tmdb_status_check`, `movies_embedding_null_idx`, and `GRANT app_inngest TO postgres` (`pg_auth_members`). → AC-3, AC-7, AC-9
+- [x] `src/lib/inngest/client.ts` exports a typed client for the three `catalog/*` events (Inngest v4 `eventType`, not the removed `EventSchemas`); `GET`/`POST`/`PUT /api/inngest` served by `serve()`, and `pnpm build` lists `/api/inngest` as dynamic (no 501 stub). → AC-9
+- [x] 27 Vitest cases over the pure module (`src/features/catalog/catalog.test.ts`): `qualifies` accept/reject rules incl. the `MIN_VOTE_COUNT` boundary, `toMovieRow` mapping + `release_year` derivation + keyword/cast caps + zero-popularity normalisation, `buildEmbeddingText` empty-line drop + year omission, `embeddingInputHash` stability and version sensitivity. → AC-3, AC-9, value-sourcing "re-embed decision"
+- [x] Write-path smoke test against local Postgres: `asInngest` runs `set local role app_inngest`; the upsert is idempotent on `tmdb_id` (same row id, `updated_at` advances); a bulk `update ... from (values ...) v(id, embedding::vector, ...)` writes a real 1536-dim vector; a re-upsert through the set-list does **not** null the embedding; `set local role app_user; insert into movies (...)` is denied. → AC-2, AC-4, AC-8, value-sourcing "upsert set-list"
+
+## Still open (needs live external services)
+
+- [ ] AC-1, AC-2 end to end: `pnpm catalog:seed` with `inngest dev` + a real `TMDB_API_READ_ACCESS_TOKEN`, drain, count `tmdb_status='active'` within 15% of 10000, run twice for idempotency.
+- [ ] AC-4 end to end: `catalog-embed-movies` against a real `OPENAI_API_KEY`; active rows reach `embedding is not null`; force one batch to throw and confirm the sweep heals it.
+- [ ] AC-5: Migration B (HNSW in `schema.ts`, generated after the backfill drains, `set maintenance_work_mem = '256MB'` prepended), then `explain` shows the HNSW index scan.
+- [ ] AC-6: invoke `catalog-refresh` and observe the three passes + the model-change re-embed.
+- [ ] AC-7: exercise the `disqualified` / `removed` / recover transitions on the refresh path.
+- [ ] AC-10: a constructed poster URL returns a 200 from the TMDB CDN.

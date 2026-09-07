@@ -62,11 +62,11 @@ Where movie data comes from and how it gets into the app: source, import pipelin
 spec [0003](../specs/0003-movie-catalog-ingestion/index.md)
 - [x] Design it (spec): `/architect movie catalog & ingestion`
 - [ ] Build it: `/develop movie catalog & ingestion` · code in `src/features/catalog/`, `src/lib/tmdb/`, `src/lib/inngest/`, `src/lib/ai/`, `src/db/`
-  - [ ] Platform wiring & schema: install `inngest`/`ai`/`@ai-sdk/openai`, typed Inngest client + `serve()`, AI registry, Migration A (new `movies` columns, `app_inngest` grant), `asInngest()` DB client · AC-3, AC-7, AC-8, AC-9
-  - [ ] TMDB client & pure catalog module: `tmdbFetch` + `discoverMovies` + `getMovieDetail` (Zod, retry, `NonRetriableError` on 404), `catalog.config.ts`, `qualifies`/`toMovieRow`/`buildEmbeddingText`/`embeddingInputHash` · AC-1, AC-3, AC-9, AC-10
-  - [ ] Ingest + embed thin thread: `catalog-ingest-movie` (fixed upsert set-list, no embedding columns) and `catalog-embed-movies` (batched `embedMany`, single writer of the embedding columns), one movie end to end · AC-2, AC-3, AC-4, AC-8, AC-10
-  - [ ] Seed backfill & HNSW index: `catalog-seed` (per-sort budgets, in-memory dedupe, throttle) + `pnpm catalog:seed` script, run ~10k backfill, then Migration B (HNSW in `schema.ts`) · AC-1, AC-2, AC-5, AC-9
-  - [ ] Weekly refresh: `catalog-refresh` cron (new releases, stalest slice, bounded null sweep) + `tmdb_status` transitions · AC-6, AC-7
+  - [x] Platform wiring & schema: install `inngest`/`ai`/`@ai-sdk/openai`, typed Inngest client + `serve()`, AI registry, Migration A (new `movies` columns, `app_inngest` grant), `asInngest()` DB client · AC-3, AC-7, AC-8, AC-9
+  - [x] TMDB client & pure catalog module: `tmdbFetch` + `discoverMovies` + `getMovieDetail` (Zod, retry, `NonRetriableError` on 404), `catalog.config.ts`, `qualifies`/`toMovieRow`/`buildEmbeddingText`/`embeddingInputHash` · AC-1, AC-3, AC-9, AC-10
+  - [x] Ingest + embed thin thread: `catalog-ingest-movie` (fixed upsert set-list, no embedding columns) and `catalog-embed-movies` (batched `embedMany`, single writer of the embedding columns), one movie end to end · AC-2, AC-3, AC-4, AC-8, AC-10
+  - [ ] Seed backfill & HNSW index: `catalog-seed` + `pnpm catalog:seed` script built; still to run: the ~10k backfill against local Supabase + `inngest dev`, then Migration B (HNSW in `schema.ts`) · AC-1, AC-2, AC-5, AC-9
+  - [x] Weekly refresh: `catalog-refresh` cron (new releases, stalest slice, bounded null sweep) + `tmdb_status` transitions · AC-6, AC-7
 - [ ] Verify it: `/check verify movie catalog & ingestion`
 
 ### 5. Design system & UI foundation · needs a decision

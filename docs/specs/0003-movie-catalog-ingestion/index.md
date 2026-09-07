@@ -1,7 +1,7 @@
 # 0003. Movie catalog and ingestion
 
 **Date**: 2026-09-06
-**Status**: Proposed
+**Status**: In Progress
 
 ## Summary
 
