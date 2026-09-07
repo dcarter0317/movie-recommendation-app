@@ -1,14 +1,19 @@
-import { NextResponse } from "next/server";
+import { serve } from "inngest/next";
 
-// The background jobs work replaces this stub with the real Inngest handler
-// (`serve()` with the Inngest client and the registered functions). Until
-// then every method returns 501 so a half-configured deploy is obvious.
+import { catalogFunctions } from "@/features/catalog/functions";
+import { inngest } from "@/lib/inngest/client";
+
+/**
+ * The Inngest handler (spec 0003). Serves every catalog job to the Inngest
+ * dev server locally and to Inngest Cloud in production; the POST path is
+ * signature-verified with `INNGEST_SIGNING_KEY` (set on the client).
+ *
+ * All catalog jobs touch the Postgres and provider SDKs, so this route runs
+ * on the Node runtime, never Edge.
+ */
 export const runtime = "nodejs";
 
-function notImplemented() {
-  return NextResponse.json({ error: "Inngest handler not configured yet" }, { status: 501 });
-}
-
-export const GET = notImplemented;
-export const POST = notImplemented;
-export const PUT = notImplemented;
+export const { GET, POST, PUT } = serve({
+  client: inngest,
+  functions: catalogFunctions,
+});

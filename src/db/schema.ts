@@ -17,6 +17,7 @@
 import { sql } from "drizzle-orm";
 import {
   check,
+  date,
   index,
   integer,
   jsonb,
@@ -26,11 +27,22 @@ import {
   pgRole,
   pgTable,
   primaryKey,
+  real,
   text,
   timestamp,
   uuid,
   vector,
 } from "drizzle-orm/pg-core";
+
+/**
+ * A single billed cast entry on a movie (spec 0003, AC-3). Stored in
+ * `movies.cast_members` as a JSON array; validated by a Zod schema at the
+ * TMDB import boundary, never trusted raw.
+ */
+export type CastMember = {
+  readonly name: string;
+  readonly character: string;
+};
 
 /**
  * The request path's application role. Enforced-but-non-owner: granted
@@ -75,9 +87,17 @@ export const users = pgTable(
 ).enableRLS();
 
 /**
- * Fixed by spec 0001, extended here. No RLS: a shared, publicly readable
- * catalog. Writes happen only from the Inngest catalog import job, over a
- * separate `bypassrls` role, never from a user request.
+ * Fixed by spec 0001, extended by spec 0003 (movie catalog & ingestion).
+ * No RLS: a shared, publicly readable catalog. Writes happen only from the
+ * Inngest catalog jobs, over the `app_inngest` bypassrls role on the direct
+ * connection, never from a user request (the request path role `app_user`
+ * holds only `SELECT` here).
+ *
+ * The four embedding columns (`embedding`, `embedding_model`, `embedded_at`,
+ * `embedding_input_hash`) are written only by `catalog-embed-movies`, and
+ * only as a complete set. Every other write path (`catalog-ingest-movie`'s
+ * upsert) omits them, so a metadata refresh can never null an existing
+ * vector (spec 0003, key invariants).
  */
 export const movies = pgTable(
   "movies",
@@ -87,8 +107,12 @@ export const movies = pgTable(
       .default(sql`gen_random_uuid()`),
     tmdbId: integer("tmdb_id").notNull().unique(),
     title: text("title").notNull(),
-    releaseYear: integer("release_year"),
     overview: text("overview"),
+    /** Full date, for recency weighting and the weekly "new releases" pass. `release_year` is derived from it in `toMovieRow`. */
+    releaseDate: date("release_date"),
+    releaseYear: integer("release_year"),
+    /** Minutes. */
+    runtime: integer("runtime"),
     genres: text("genres")
       .array()
       .notNull()
@@ -97,24 +121,47 @@ export const movies = pgTable(
       .array()
       .notNull()
       .default(sql`'{}'::text[]`),
-    /** Top five { name, character } entries; validated by a Zod schema at the TMDB import boundary (feature 4). */
+    /** Top five { name, character } entries; validated by a Zod schema at the TMDB import boundary (spec 0003). */
     castMembers: jsonb("cast_members")
+      .$type<readonly CastMember[]>()
       .notNull()
       .default(sql`'[]'::jsonb`),
     posterPath: text("poster_path"),
+    /** TMDB rating, 0.0 to 10.0. `{ mode: "number" }` so it reads back as a number, not a string. */
+    voteAverage: numeric("vote_average", { precision: 3, scale: 1, mode: "number" }),
+    /** Sample size behind `vote_average`, and the qualification floor input. */
+    voteCount: integer("vote_count").notNull().default(0),
+    /** TMDB trending score; refreshed weekly, decays on TMDB's side, best effort between refreshes. */
+    popularity: real("popularity"),
+    /** ISO 639-1 code, kept for reference and filtering. */
+    originalLanguage: text("original_language"),
+    /** `active` while it passes the filters; `disqualified` / `removed` rows are retained, never deleted. */
+    tmdbStatus: text("tmdb_status").notNull().default("active"),
     embedding: vector("embedding", { dimensions: 1536 }),
     embeddingModel: text("embedding_model"),
     embeddedAt: timestamp("embedded_at", { withTimezone: true }),
+    /** SHA-256 hex of the versioned embedding text block; written only alongside `embedding`, by `catalog-embed-movies`. */
+    embeddingInputHash: text("embedding_input_hash"),
+    /** `now()` on every successful upsert from TMDB; monotonic non-decreasing. Drives the weekly stalest-slice refresh. */
+    lastRefreshedAt: timestamp("last_refreshed_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
+    check(
+      "movies_tmdb_status_check",
+      sql`${table.tmdbStatus} in ('active', 'disqualified', 'removed')`,
+    ),
     index("movies_genres_idx").using("gin", table.genres),
     index("movies_keywords_idx").using("gin", table.keywords),
-    // HNSW on `embedding` (vector_cosine_ops) is deferred to feature 4 (movie
-    // catalog & ingestion): building it incrementally during a large bulk
-    // import is substantially slower than building it once after the load
-    // completes (spec 0002, Indexes), so it is not declared here.
+    // For the `catalog-refresh` re-embed sweep: find rows still missing a vector.
+    index("movies_embedding_null_idx")
+      .on(table.id)
+      .where(sql`${table.embedding} is null`),
+    // HNSW on `embedding` (vector_cosine_ops) is declared here and generated
+    // as its own migration *after* the initial ~10k backfill drains (spec
+    // 0003, AC-5 and Build plan step 8): building it once on a full table is
+    // much faster than incrementally during the bulk load. Not present yet.
   ],
 );
 
