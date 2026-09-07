@@ -55,9 +55,6 @@ export const TMDB_THROTTLE = { limit: 40, period: "1s" } as const;
 /** How many days back the weekly "new releases" discover pass looks. */
 export const NEW_RELEASE_LOOKBACK_DAYS = 8;
 
-/** Poster path prefix; the caller appends a size segment and the stored `poster_path`. */
-export const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/";
-
 /** Text blocks per `embedMany` call in `catalog-embed-movies`, and the Inngest batch size. */
 export const EMBED_BATCH_SIZE = 100;
 
@@ -73,8 +70,3 @@ export const EMBEDDING_TEXT_VERSION = "v1";
 
 /** Weekly refresh cron: Mondays 04:00 UTC. */
 export const REFRESH_CRON = "0 4 * * 1";
-
-/** Build a full poster URL from a stored `poster_path` and a TMDB size token (e.g. `"w500"`, `"original"`). */
-export function posterUrl(posterPath: string, size: string): string {
-  return `${IMAGE_BASE_URL}${size}${posterPath}`;
-}
