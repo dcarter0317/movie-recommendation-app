@@ -15,7 +15,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 2 | Coding standards & tooling | Foundation | done |
 | 3 | Data model | Foundation | done |
 | 4 | Movie catalog & ingestion | Foundation | in-progress |
-| 5 | Design system & UI foundation | Foundation | planned |
+| 5 | Design system & UI foundation | Foundation | in-progress |
 | 6 | Accounts & sign in | Slice 1 | planned |
 | 7 | Swipe onboarding & personalized feed | Slice 1 | planned |
 | 8 | Letterboxd CSV import | Slice 2 | planned |
@@ -69,10 +69,18 @@ spec [0003](../specs/0003-movie-catalog-ingestion/index.md)
   - [x] Weekly refresh: `catalog-refresh` cron (new releases, stalest slice, bounded null sweep) + `tmdb_status` transitions · AC-6, AC-7
 - [ ] Verify it: `/check verify movie catalog & ingestion`
 
-### 5. Design system & UI foundation · needs a decision
+### 5. Design system & UI foundation · in-progress
 Visual language, layout primitives, and base components (including the swipe card) so onboarding, feed, and search feel like one product and stay keyboard accessible.
 **Done when:** `design.md` covers type/color/spacing/components, and base components handle focus and keyboard.
-- [ ] Design it (spec): `/architect design system & UI foundation`
+spec [0005](../specs/0005-design-system-ui-foundation/index.md)
+- [x] Design it (spec): `/architect design system & UI foundation`
+- [ ] Build it: `/develop design system & UI foundation` · code in `src/components/`, `src/components/ui/`, `src/components/movie/`, `src/lib/tmdb/`, `src/app/globals.css`, `docs/design.md`
+  - [ ] shadcn init + token layer + fonts + `design.md`: `npx shadcn init` (new-york, rsc, lucide, zinc), rewrite `globals.css` (`:root`/`.dark` values, `@theme inline`, `@custom-variant dark`, motion tokens), wire Fraunces / drop Geist Mono, write `docs/design.md`, add the token parity test · AC-1, AC-2, AC-4
+  - [ ] Theme switching: `ThemeProvider` (next-themes, default dark) + `ThemeToggle` with a pre-mount placeholder, no theme flash, `(marketing)` stays static · AC-3
+  - [ ] Primitives + feedback + layout: `Card`/`Input`/`Label`/`Badge`/`Skeleton`, `Toast` (sonner), `EmptyState`, `Spinner`, `PageContainer`, `Stack`, `Cluster`, with usage notes · AC-1, AC-4, AC-5
+  - [ ] Movie components: `posterUrl` helper + `image.tmdb.org` config, `Poster` (2:3, skeleton, fallback on undefined and `onError`), `MovieCard`, `SwipeCard` (one `reactionForDrag` resolver for drag + buttons + arrow keys, single fire, focus + announce, `LazyMotion` drag, reduce-motion branch) · AC-6, AC-7, AC-8, AC-9
+  - [ ] Contrast + focus audit, then component tests: `contrastRatio()` gate on every documented pair, `--ring` everywhere, then Vitest for `reactionForDrag`, the `SwipeCard` button/key paths, and smoke tests for the bespoke and composed components · AC-10, AC-11
+- [ ] Verify it: `/check verify design system & UI foundation`
 
 ## Slice 1: Core recommendation loop
 
