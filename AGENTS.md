@@ -53,6 +53,8 @@ Stored in `docs/specs/`. Format: `docs/specs/NNNN-title/index.md`.
 - Every environment variable is declared and parsed in `src/env.ts` with Zod. No `process.env` access anywhere else.
 - Strict folder-by-feature: feature code lives in `src/features/<domain>/` (its Server Actions, queries, and components colocated). Keep `src/lib/<concern>/` minimal, for shared infrastructure wrappers only.
 - All routes and jobs run on the Node runtime, never Edge (the Postgres and provider SDKs require it).
+- `src/components/` (shared cross feature UI) and `src/components/movie/` (shared movie UI) are a deliberate exception to the folder by feature rule above: UI that every feature imports does not belong to one feature's `src/features/<domain>/`.
+- UI conventions: build all UI to `docs/design.md` (the prose source of truth for type, color, spacing, motion, and component usage notes); the design token _values_ are canonical in `src/app/globals.css`. Import `motion` only through `LazyMotion` (as in `SwipeCard`), and use `next-themes` through the `class` attribute.
 
 ## Tooling
 
