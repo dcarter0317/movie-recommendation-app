@@ -36,13 +36,17 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  --color-rating: var(--rating);
+
   --color-like: var(--like);
   --color-dislike: var(--dislike);
   --color-seen: var(--seen);
   --color-skip: var(--skip);
 
   --font-sans: var(--font-sans);
-  --font-display: var(--font-display);
+  /* No separate display face: `font-display` aliases the sans stack.
+     Headings carry hierarchy through weight and tracking, not family. */
+  --font-display: var(--font-sans);
   --font-heading: var(--font-sans);
 
   --radius-sm: calc(var(--radius) * 0.6);
@@ -65,17 +69,24 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/*
+ * Modern cinematic re-skin (spec 0005, 2026-09-07). `--primary` is neutral and
+ * high contrast (a near white pill on dark, a near black pill on light); amber
+ * lives in `--rating` (stars, scores, inline emphasis) and `--ring` (focus).
+ * The warm poster scrim and frosted glass panel are utility recipes in
+ * `docs/design.md`, not tokens.
+ */
 :root {
   --background: #ffffff;
   --foreground: #09090b;
 
-  --card: #ffffff;
+  --card: #fafafa;
   --card-foreground: #09090b;
   --popover: #ffffff;
   --popover-foreground: #09090b;
 
-  --primary: #d97706;
-  --primary-foreground: #1c1917;
+  --primary: #18181b;
+  --primary-foreground: #fafafa;
   --secondary: #f4f4f5;
   --secondary-foreground: #18181b;
   --muted: #f4f4f5;
@@ -89,44 +100,48 @@
   --input: #e4e4e7;
   --ring: #b45309;
 
+  --rating: #b45309;
+
   --like: #16a34a;
   --dislike: #dc2626;
   --seen: #2563eb;
   --skip: #52525b;
 
-  --radius: 0.625rem;
+  --radius: 1rem;
 }
 
 .dark {
-  --background: #09090b;
+  --background: #0a0a0a;
   --foreground: #fafafa;
 
-  --card: #18181b;
+  --card: #161618;
   --card-foreground: #fafafa;
-  --popover: #18181b;
+  --popover: #1c1c1f;
   --popover-foreground: #fafafa;
 
-  --primary: #fbbf24;
-  --primary-foreground: #1c1917;
-  --secondary: #27272a;
+  --primary: #fafafa;
+  --primary-foreground: #18181b;
+  --secondary: #242427;
   --secondary-foreground: #fafafa;
-  --muted: #27272a;
+  --muted: #242427;
   --muted-foreground: #a1a1aa;
-  --accent: #27272a;
+  --accent: #242427;
   --accent-foreground: #fafafa;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
 
-  --border: #27272a;
-  --input: #27272a;
+  --border: #2a2a2e;
+  --input: #2a2a2e;
   --ring: #fcd34d;
+
+  --rating: #fbbf24;
 
   --like: #22c55e;
   --dislike: #ef4444;
   --seen: #3b82f6;
   --skip: #a1a1aa;
 
-  --radius: 0.625rem;
+  --radius: 1rem;
 }
 
 @layer base {

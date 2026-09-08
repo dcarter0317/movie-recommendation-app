@@ -28,9 +28,9 @@ export function PosterImage({ path, alt, size, sizes, priority }: PosterImagePro
   }
 
   return (
-    <div className="relative aspect-2/3 w-full overflow-hidden rounded-lg">
+    <div className="relative aspect-2/3 w-full overflow-hidden rounded-2xl">
       {status === "loading" ? (
-        <Skeleton className="absolute inset-0 h-full w-full rounded-lg" />
+        <Skeleton className="absolute inset-0 h-full w-full rounded-2xl" />
       ) : undefined}
       <Image
         src={posterUrl(path, size)}
