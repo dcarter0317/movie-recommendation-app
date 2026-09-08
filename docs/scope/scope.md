@@ -16,8 +16,8 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 3 | Data model | Foundation | done |
 | 4 | Movie catalog & ingestion | Foundation | in-progress |
 | 5 | Design system & UI foundation | Foundation | in-progress |
-| 6 | Accounts & sign in | Slice 1 | planned |
-| 7 | Swipe onboarding & personalized feed | Slice 1 | planned |
+| 6 | Accounts & sign in | Slice 1 | in-progress |
+| 7 | Swipe onboarding & personalized feed | Slice 1 | in-progress |
 | 8 | Letterboxd CSV import | Slice 2 | planned |
 | 9 | Feed refinement & feedback | Slice 3 | planned |
 | 10 | Generated reasons | Slice 3 | planned |
@@ -87,15 +87,30 @@ _Re-skin done 2026-09-07 (spec 0005 revision, build plan steps R1 to R5, branch 
 
 The thinnest real thread through every layer: a user signs in, teaches the app a little taste by swiping, and sees a personalized feed with reasons. This is the walking skeleton. CSV import, richer feedback, generated reasons, and vibe search are all later strands on this thread.
 
-### 6. Accounts & sign in · needs a decision
+### 6. Accounts & sign in · in-progress
 Sign up, sign in, sign out, and session handling, plus the minimal account record the taste profile hangs off.
 **Done when:** a user can create an account, sign in and out, stay signed in across visits, and the app has a stable user id for their data.
-- [ ] Design it (spec): `/architect accounts & sign in`
+spec [0006](../specs/0006-accounts-and-sign-in/index.md)
+- [x] Design it (spec): `/architect accounts & sign in`
+- [ ] Build it: `/develop accounts & sign in`
+  - [ ] Groundwork: `resolve_user` SECURITY DEFINER function + grant migration, promote `Result` to `src/lib/result.ts`, confirm the request role is a member of `app_user` · AC-5, AC-6
+  - [ ] Middleware, provider, auth screens: `@clerk/nextjs`, `<ClerkProvider>` redirect props, literal `config.matcher` (protect by default; marketing, `/api/health`, webhooks, inngest excluded), themed `/sign-in` + `/sign-up`, dashboard sign in methods + email verification · AC-1, AC-2, AC-4, AC-11
+  - [ ] Session plumbing + onboarding gate: `src/lib/auth/` (`resolveInternalUserId`, `requireUserId`, `withUser` with `SET LOCAL ROLE` + `app.user_id`), `(onboarding)` group + placeholder page, `(app)` layout gate, `<UserButton/>` · AC-2, AC-5, AC-6, AC-10
+  - [ ] Delete reconciliation + account page: `POST /api/webhooks/clerk` (`user.deleted` only, Svix verify, bypass connection), `/account` themed `<UserProfile/>` + danger zone `deleteAccount` (Clerk first, then cascade) · AC-7, AC-8, AC-9
+- [ ] Verify it: `/check verify accounts & sign in`
 
-### 7. Swipe onboarding & personalized feed · needs a decision
+### 7. Swipe onboarding & personalized feed · in-progress
 Swipe through a starter set of movies (like / dislike / seen / skip), reach an "enough to start" threshold, then land on a personalized feed where each pick shows a short templated reason. Carries the recommendation engine decision that later slices extend.
 **Done when:** a new user can swipe a starter deck, cross the threshold, and see a ranked feed of unseen movies, each with a templated reason; the deck and feed handle empty and loading states and work with keyboard.
-- [ ] Design it (spec): `/architect swipe onboarding & personalized feed`
+spec [0007](../specs/0007-swipe-onboarding-personalized-feed/index.md)
+- [x] Design it (spec): `/architect swipe onboarding & personalized feed`
+- [ ] Build it: `/develop swipe onboarding & personalized feed` · code in `src/features/feed/`, `src/app/(app)/`, `src/lib/inngest/`
+  - [ ] Thin thread: feature scaffold + `feed.config.ts` + typed `feed/taste.recompute.requested` event; `recordReaction` action (upsert via `src/db/interactions.ts`, send the event); debounced `feed-recompute-taste` Inngest job (L2-normalized mean into `taste_profile`); `getFeed` similarity query (HNSW, `ef_search`, over-fetch, exclusion) + templated tag-overlap reason · AC-4, AC-5, AC-6, AC-7, AC-9
+  - [ ] Fallback ranking (Bayesian weighted rating when no usable taste vector) + real `CATALOG_MEAN_RATING_C`; model-mismatch branch (rank anyway + warn) · AC-8, AC-13
+  - [ ] Onboarding deck: weighted-rating genre-spread selection, reacted-movie exclusion, batch of 10, widening ladder when short · AC-2, AC-3
+  - [ ] `(app)` route-group gate (live qualifying-positive count), `/onboarding` deck screen and rebuilt `/feed` stacked-card screen (loading + empty states, keyboard, no `'use cache'`), "you're all set" threshold transition · AC-1, AC-10, AC-11, AC-12
+  - [ ] Unit + integration tests (weighted rating, reason builder, deck spread, mean/normalize, `recordReaction` idempotency, job correctness, feed exclusion/fallback/warn) and `verify.md` · all ACs
+- [ ] Verify it: `/check verify swipe onboarding & personalized feed`
 
 ## Slice 2: Letterboxd CSV import
 
@@ -147,6 +162,7 @@ Out of scope for the current build pass, kept so the plan stays honest.
 - **Accessibility AA program**: a committed WCAG AA baseline and audit across the whole app, beyond the keyboard support already seeded into onboarding · needs a decision
 - **Streaming availability**: show where each movie can be watched · needs a decision
 - **Catalog compaction**: a job to prune `tmdb_status in ('disqualified','removed')` movie rows once dead rows become material · from spec 0003 · needs a decision
+- **Deleted account tombstone**: a tombstone table or short deny list to close the ~60 second window after account deletion where a still valid session cookie recreates a `users` row · from spec 0006 · needs a decision
 - **Native mobile app**: a real iOS/Android client · needs a decision
 - **Billing & paid tier**: a freemium subscription if the product needs revenue later · needs a decision · GA
 
