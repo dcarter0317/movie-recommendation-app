@@ -289,7 +289,7 @@ Ordered for Tracer Bullet: stand up one thin real thread through the whole styli
 - [ ] Features 6 and 7 design the authenticated app shell (header, navigation, sign in and out controls) on top of these tokens and layout helpers.
 - [x] Recorded by `/sync` on 2026-09-07: `AGENTS.md` `## Rules` now carries the `src/components/` (shared cross feature UI) and `src/components/movie/` exception to folder by feature, plus the UI conventions (token values canonical in `src/app/globals.css`, prose source of truth `docs/design.md`, `motion` only through `LazyMotion` in `SwipeCard`, `next-themes` through the `class` attribute).
 - [ ] Deferred Accessibility AA program (app wide WCAG AA audit, screen reader QA, skip links) stays out of scope here; this feature seeds the keyboard and contrast baseline it will build on.
-- [ ] Consider a live `/styleguide` route later as a visual reference for tokens and components; not needed to build anything, so deferred.
+- [x] Built 2026-09-07: `src/app/styleguide/page.tsx` renders every token and component on one page as a developer reference (not a product screen, nothing links to it). Safe to delete once features 6 and 7 build the real app shell.
 - [x] Resolved by the 2026-09-07 re-skin: `--primary` is now neutral (high contrast in both themes) and `--rating` (amber) is the dedicated inline emphasis / link color, so no separate `--link` token is needed. `--rating` on `--background` is checked at 3:1 (large text / UI); do not use it for body-size link text in light mode without confirming 4.5:1 first.
 
 ## Rationale
