@@ -109,7 +109,7 @@ export function SwipeCard({ movie, onReact }: SwipeCardProps): JSX.Element {
   const card = (
     <div
       className={cn(
-        "bg-card text-card-foreground ring-foreground/10 relative flex w-full max-w-sm flex-col gap-3 overflow-hidden rounded-xl p-4 ring-1 transition-opacity",
+        "bg-card text-card-foreground ring-foreground/10 relative flex w-full max-w-sm flex-col gap-3 overflow-hidden rounded-3xl p-4 ring-1 transition-opacity",
         reacted !== undefined && "opacity-60",
       )}
     >
@@ -164,7 +164,8 @@ export function SwipeCard({ movie, onReact }: SwipeCardProps): JSX.Element {
         </LazyMotion>
       )}
 
-      <div className="flex items-center gap-2">
+      {/* Frosted glass pill bar (spec 0005 re-skin surface recipe). */}
+      <div className="border-border/60 bg-card/70 flex items-center gap-2 rounded-full border px-3 py-2 backdrop-blur-xl">
         {CONTROLS.map(({ reaction, label, Icon }) => (
           <Button
             key={reaction}
